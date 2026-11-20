@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-11-19T21:57:40.968+0000",
+  "agent": "soc-ubuntu",
+  "agent_id": "002",
+  "rule": "550",
+  "description": "Integrity checksum changed.",
+  "file": "/opt/soc-lab/lighting-schedule-01.txt",
+  "action": "modified",
+  "before": "2a0106a6f567db3fe98598e9b2d7e2e6a78e6e73af3068a1d798be0886c59e64",
+  "after": "9e0f6ecb0fe89bf3f562adb011df11f3a09791365f814b7a50bd28c994478143"
+}

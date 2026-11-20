@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-11-20T03:56:38.623+0000",
+  "agent": "soc-dc01",
+  "agent_id": "003",
+  "rule": "60109",
+  "description": "User account enabled or created",
+  "level": 8,
+  "event_id": "4720",
+  "event_time": "2026-11-20T03:56:39.8597284Z",
+  "channel": "Security",
+  "computer": "SOC-DC01.soclab.internal",
+  "subject_user": "Administrator",
+  "subject_domain": "SOCLAB",
+  "target_user": "jrivera",
+  "target_domain": "SOCLAB",
+  "target_sid": "S-1-5-21-3516347762-1396066836-564546650-1104",
+  "user_principal_name": "jrivera@soclab.internal"
+}

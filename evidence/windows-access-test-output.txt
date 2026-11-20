@@ -1,0 +1,132 @@
+Captured output of the access-control exercise on SOC-DC01, run of 2026-11-19 US Eastern (2026-11-20 UTC).
+Assistant-operated. Times are UTC. Lines are as printed by the scripts in scripts/windows-guest and scripts/host.
+Nothing here is secret. Passwords were never printed.
+
+===== Step 1: OU, group, user (40-create-identity.ps1) =====
+step 1 started 2026-11-20T03:56:34Z
+OU created 2026-11-20T03:56:36Z
+group created 2026-11-20T03:56:36Z
+user created 2026-11-20T03:56:41Z
+--- result
+OU: OU=Lab,DC=soclab,DC=internal
+group: CN=GG-Lighting-Operators,OU=Lab,DC=soclab,DC=internal  scope=Global  category=Security  sid=S-1-5-21-3516347762-1396066836-564546650-1103
+user: CN=Jordan Rivera,OU=Lab,DC=soclab,DC=internal  enabled=True  upn=jrivera@soclab.internal  sid=S-1-5-21-3516347762-1396066836-564546650-1104  whenCreated(local)=11/19/2026 22:56:38
+user is a member of: 0 groups besides Domain Users
+members of GG-Lighting-Operators: 0
+
+===== Step 2: folder, file, permissions, share (41-create-share.ps1) =====
+step 2 started 2026-11-20T03:56:55Z
+--- icacls before
+C:\LabShares\Lighting BUILTIN\Administrators:(F)
+                      NT AUTHORITY\SYSTEM:(I)(OI)(CI)(F)
+                      BUILTIN\Administrators:(I)(OI)(CI)(F)
+                      BUILTIN\Users:(I)(OI)(CI)(RX)
+                      BUILTIN\Users:(I)(CI)(AD)
+                      BUILTIN\Users:(I)(CI)(WD)
+                      CREATOR OWNER:(I)(OI)(CI)(IO)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+--- change
+processed file: C:\LabShares\Lighting
+Successfully processed 1 files; Failed processing 0 files
+--- icacls after
+C:\LabShares\Lighting BUILTIN\Administrators:(F)
+                      SOCLAB\GG-Lighting-Operators:(OI)(CI)(M)
+                      NT AUTHORITY\SYSTEM:(OI)(CI)(F)
+                      BUILTIN\Administrators:(OI)(CI)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+C:\LabShares\Lighting\lighting-schedule-01.txt SOCLAB\GG-Lighting-Operators:(I)(M)
+                                               NT AUTHORITY\SYSTEM:(I)(F)
+                                               BUILTIN\Administrators:(I)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+--- share
+share Lighting -> C:\LabShares\Lighting
+share permission: NT AUTHORITY\Authenticated Users  Allow  Full
+file content: occupied_until=18:00
+file sha256: E52377DD4C5518A6333420FBE5FCE58B918127A5EE21F9C69A5A1A45850BBDBA
+step 2 finished 2026-11-20T03:57:02Z
+
+===== Step 3: before group membership (42-access-test.ps1) =====
+=== Step 3, before group membership -started 2026-11-20T03:57:15Z
+members of GG-Lighting-Operators:
+connected to \\10.77.0.30\Lighting  status=OK
+--- who the server says is connected (Get-SmbSession)
+ClientUserName=SOCLAB\jrivera  ClientComputerName=10.77.0.30
+--- read attempt 2026-11-20T03:57:18Z
+READ FAILED  System.UnauthorizedAccessException: Access is denied
+disconnected. sessions left for SOCLAB\jrivera: 0
+=== Step 3, before group membership -finished 2026-11-20T03:57:19Z
+
+===== Step 4: add to the group (43-add-member.ps1) =====
+step 4 started 2026-11-20T03:57:36Z
+member added 2026-11-20T03:57:37Z
+members of GG-Lighting-Operators: jrivera
+
+===== Step 5: after group membership (42-access-test.ps1) =====
+=== Step 5, after group membership -started 2026-11-20T03:57:41Z
+members of GG-Lighting-Operators: jrivera
+connected to \\10.77.0.30\Lighting  status=OK
+--- who the server says is connected (Get-SmbSession)
+ClientUserName=SOCLAB\Administrator  ClientComputerName=[::1]
+ClientUserName=SOCLAB\jrivera  ClientComputerName=10.77.0.30
+--- read attempt 2026-11-20T03:57:42Z
+READ SUCCEEDED
+    occupied_until=18:00
+--- write attempt 2026-11-20T03:57:43Z
+WRITE SUCCEEDED  appended: # edited by jrivera
+    occupied_until=18:00
+    # edited by jrivera
+disconnected. sessions left for SOCLAB\jrivera: 0
+=== Step 5, after group membership -finished 2026-11-20T03:57:43Z
+
+===== Round 2, step A: remove from the group =====
+round 2 removal started 2026-11-20T03:59:14Z
+member removed 2026-11-20T03:59:14Z
+members of GG-Lighting-Operators:
+
+(the same step also printed: firewall rules allowing SMB in: 5)
+
+===== Round 2, step B: from SOC-Ubuntu, before membership (Test-ShareFromUbuntu.ps1) =====
+=== Round 2, before group membership - from soc-ubuntu (10.77.0.20 ) started 2026-11-20T03:59:44Z
+--- list the share
+NT_STATUS_ACCESS_DENIED listing \*
+--- read attempt 2026-11-20T03:59:44Z
+NT_STATUS_ACCESS_DENIED opening remote file \lighting-schedule-01.txt
+READ FAILED
+=== Round 2, before group membership - finished 2026-11-20T03:59:55Z
+
+===== Round 2, step C: add to the group again (43-add-member.ps1) =====
+step 4 started 2026-11-20T04:00:01Z
+member added 2026-11-20T04:00:01Z
+members of GG-Lighting-Operators: jrivera
+
+===== Round 2, step D: from SOC-Ubuntu, after membership (Test-ShareFromUbuntu.ps1) =====
+=== Round 2, after group membership - from soc-ubuntu (10.77.0.20 ) started 2026-11-20T04:00:10Z
+--- list the share
+  .                                   D        0  Fri Nov 20 03:56:55 2026
+  ..                                  D        0  Fri Nov 20 03:56:55 2026
+  lighting-schedule-01.txt            A       43  Fri Nov 20 03:57:43 2026
+
+		16447231 blocks of size 4096. 11862961 blocks available
+--- read attempt 2026-11-20T04:00:10Z
+getting file \lighting-schedule-01.txt of size 43 as /root/.soclab-work.YuWuSq/copy.txt (7.0 KiloBytes/sec) (average 7.0 KiloBytes/sec)
+READ SUCCEEDED
+    occupied_until=18:00
+    # edited by jrivera
+--- write attempt 2026-11-20T04:00:10Z
+putting file /root/.soclab-work.YuWuSq/copy.txt as \lighting-schedule-01.txt (4.3 kb/s) (average 4.3 kb/s)
+WRITE SUCCEEDED  appended: # edited by jrivera from soc-ubuntu
+=== Round 2, after group membership - finished 2026-11-20T04:00:10Z
+
+===== File on the server afterwards, read locally by Administrator =====
+    occupied_until=18:00
+    # edited by jrivera
+    # edited by jrivera from soc-ubuntu
+last write (UTC): 2026-11-20T04:00:03Z   sha256: 1AB7642AB61A8A7DE0580142AB300088942BF01D7E5AF5BF986460483A23BAEE   owner: BUILTIN\Administrators
+members of GG-Lighting-Operators: jrivera
+
+Note on clocks: steps on the server use the Windows guest's clock and the Ubuntu steps use Ubuntu's.
+The Windows guest clock was 6.6 seconds behind the host just after the run, which is why the file's
+last write time (04:00:03) is a few seconds earlier than the Ubuntu write that caused it (04:00:10).

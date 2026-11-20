@@ -1,0 +1,48 @@
+# Nothing secret, private or large belongs in this repository.
+# Credentials live outside it, in an encrypted per-user store on the lab host.
+
+# Credential and key material
+*.xml
+client.keys
+authd.pass
+*.key
+*.pem
+*.crt
+*.cer
+*.pfx
+*.p12
+*.kdbx
+*-key
+*_key
+id_*
+known_hosts
+*known-hosts
+ssh-config
+*.secret
+.env
+.env.*
+
+# Virtual machines, disks and installation media
+*.vdi
+*.vmdk
+*.vhd
+*.vhdx
+*.ova
+*.ovf
+*.iso
+*.viso
+*.img
+*.sav
+*.vbox
+*.vbox-prev
+*.tar.xz
+*.msi
+
+# Local tooling and noise
+tools-env/
+__pycache__/
+*.pyc
+*.log
+Thumbs.db
+desktop.ini
+.obsidian/
